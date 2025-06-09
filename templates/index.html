@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Predicción de Urgencia de Trámite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column min-vh-100 bg-light">
+    <!-- Header -->
+    <header class="bg-primary shadow-sm">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container justify-content-center py-3">
+                <span class="navbar-brand mb-0 h1 text-white fs-2 fw-semibold text-uppercase">Municipalidad Distrital de
+                    Yau</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container flex-grow-1 py-5">
+        <div class="row g-4 mb-3">
+            <!-- Columna 1: Subir archivo -->
+            <div class="col-sm-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3 fw-bold text-primary text-uppercase"> Subir archivo PDF
+                        </h5>
+                        <form method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="pdf_file" class="form-label">Selecciona un archivo PDF</label>
+                                <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept=".pdf"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 text-uppercase fw-semibold">Cargar
+                                archivo</button>
+                        </form>
+                        {% if error %}
+                        <div class="alert alert-danger mt-3" role="alert">{{ error }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- Columna 2: Datos del trámite -->
+            <div class="col-sm-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3 fw-bold text-uppercase text-primary"> Datos del trámite
+                        </h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del trámite</label>
+                                <input type="text" class="form-control" value="{{ tramite or '' }}" readonly>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label">Días estimados</label>
+                                    <input type="text" class="form-control"
+                                        value="{% if tiempo_estimado != -1 %}{{ tiempo_estimado }}{% else %}No encontrado{% endif %}"
+                                        readonly>
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label class="form-label">Prioridad</label>
+                                    <input type="text" class="form-control" value="{{ prioridad or '' }}" readonly>
+                                </div>
+                            </div>
+                            {% if desconocido %}
+                            <div class="alert alert-warning mb-3">
+                                Este trámite es nuevo, quizás tome más días.
+                            </div>
+                            {% endif %}
+                            <div class="row mb-3">
+                                <div class="col-sm-6 mb-2">
+                                    <label name="nombres" class="form-label">Nombres</label>
+                                    <input type="text" class="form-control" name="nombres" value="{{ nombres or '' }}">
+                                </div>
+                                <div class="col-sm-6 mb-2">
+                                    <label name="telefono" class="form-label">Teléfono</label>
+                                    <input type="text" class="form-control" name="telefono"
+                                        value="{{ telefono or '' }}">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success w-100" disabled>Enviar</button>
+                        </form>
+                        {% if prioridad %}
+                        <div class="alert alert-info mt-4">
+                            <h6 class="mb-2">Trámite: <span class="fw-bold">{{ tramite }}</span></h6>
+                            <div>Prioridad: <span class="fw-semibold text-uppercase">{{ prioridad }}</span></div>
+                            <div>Tiempo estimados:
+                                <span class="fw-semibold">
+                                    {% if tiempo_estimado != -1 %}
+                                    {{ tiempo_estimado }} dias
+                                    {%endif %}
+                                </span>
+                            </div>
+                            {% if desconocido %}
+                            <div class="text-danger mt-2 opacity-85">
+                                Este trámite es nuevo, tomará más días.
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid w-100">
+            <table class="table table-rounded table-striped shadow-sm">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Trámite</th>
+                        <th>Tiempo estimado</th>
+                        <th>Prioridad</th>
+                        <th>Nombres</th>
+                        <th>Teléfono</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in tramites %}
+                    <tr>
+                        <td>{{ item.tramite }}</td>
+                        <td>
+                            {% if item.dias_resolucion != -1 %}
+                            {{ item.dias_resolucion }}
+                            {% else %}
+                            No encontrado
+                            {% endif %}
+                        </td>
+                        <td>{{ item.prioridad }}</td>
+                        <td>
+                            <form method="post" action="/editar" class="d-flex align-items-center gap-2">
+                                <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                                <input type="text" name="nombres" value="{{ item.nombres or '' }}" class="form-control form-control-sm" style="min-width: 100px;">
+                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Guardar"><i class="bi bi-save"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="/editar" class="d-flex align-items-center gap-2">
+                                <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                                <input type="text" name="telefono" value="{{ item.telefono or '' }}" class="form-control form-control-sm" style="min-width: 100px;">
+                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Guardar"><i class="bi bi-save"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark mt-auto py-3 shadow-sm">
+        <div class="container text-center">
+            <span class="text-white small">&copy; {{ year or "2025" }} Municipalidad Distrital de Yau / Desarrollado por
+                <a href="https://dev-paul.com" class="text-white text-decoration-none fw-bold" target="_blank">Paul</a>
+            </span>
+        </div>
+    </footer>
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</body>
+
+</html>
