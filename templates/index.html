@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Municipalidad Distrital de Yau</title>
+    <title>Municipalidad Provincial de Yau</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -13,7 +13,7 @@
     <header class="bg-primary shadow-sm">
         <nav class="navbar navbar-expand-lg">
             <div class="container justify-content-center py-3">
-                <span class="navbar-brand mb-0 h1 text-white fs-2 fw-semibold text-uppercase">Municipalidad Distrital de
+                <span class="navbar-brand mb-0 h1 text-white fs-2 fw-semibold text-uppercase">Municipalidad Provincial de
                     Yau</span>
             </div>
         </nav>
@@ -114,34 +114,50 @@
                         <th>Prioridad</th>
                         <th>Nombres</th>
                         <th>Teléfono</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in tramites %}
                     <tr>
-                        <td>{{ item.tramite }}</td>
-                        <td>
-                            {% if item.dias_resolucion != -1 %}
-                            {{ item.dias_resolucion }}
-                            {% else %}
-                            No encontrado
-                            {% endif %}
-                        </td>
-                        <td>{{ item.prioridad }}</td>
-                        <td>
-                            <form method="post" action="/editar" class="d-flex align-items-center gap-2">
+                        <form method="post" action="/editar" class="d-flex align-items-center">
+                            <td>{{ item.tramite }}</td>
+                            <td>
+                                {% if item.dias_resolucion != -1 %}
+                                {{ item.dias_resolucion }} dias
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.prioridad == "muy alta" %}
+                                    <span class="badge bg-danger text-white fw-semibold" style="background-color:#b30000;">Muy alta</span>
+                                {% elif item.prioridad == "alta" %}
+                                    <span class="badge bg-danger text-white fw-semibold">Alta</span>
+                                {% elif item.prioridad == "media" %}
+                                    <span class="badge bg-warning text-dark fw-semibold">Media</span>
+                                {% elif item.prioridad == "baja" %}
+                                    <span class="badge bg-success text-white fw-semibold">Baja</span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-white">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
                                 <input type="hidden" name="idx" value="{{ loop.index0 }}">
                                 <input type="text" name="nombres" value="{{ item.nombres or '' }}" class="form-control form-control-sm" style="min-width: 100px;">
-                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Guardar"><i class="bi bi-save"></i></button>
-                            </form>
-                        </td>
-                        <td>
-                            <form method="post" action="/editar" class="d-flex align-items-center gap-2">
-                                <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                            </td>
+                            <td>
                                 <input type="text" name="telefono" value="{{ item.telefono or '' }}" class="form-control form-control-sm" style="min-width: 100px;">
-                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Guardar"><i class="bi bi-save"></i></button>
-                            </form>
-                        </td>
+                            </td>
+                            <td class="align-items-center">
+                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Guardar">
+                                    <i class="bi bi-save"></i>
+                                </button>
+                                {% if item.telefono %}
+                                    <a href="https://wa.me/51{{ item.telefono }}" class="text-decoration-none text-uppercase fw-semibold text-primary ms-2" target="_blank">Contactar</a>
+                                {% else %}
+                                    <span class="ms-2">No hay contacto</span>
+                                {% endif %}
+                            </td>
+                        </form>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -152,7 +168,7 @@
     <!-- Footer -->
     <footer class="bg-dark mt-auto py-3 shadow-sm">
         <div class="container text-center">
-            <span class="text-white small">&copy; {{ year or "2025" }} Municipalidad Distrital de Yau / Desarrollado por
+            <span class="text-white small">&copy; {{ year or "2025" }} Municipalidad Provincial de Yau / Desarrollado por
                 <a href="https://dev-paul.com" class="text-white text-decoration-none fw-bold" target="_blank">Paul</a>
             </span>
         </div>

@@ -59,9 +59,14 @@ def index():
             file = request.files['pdf_file']
             if file and file.filename.endswith('.pdf'):
                 try:
+                    # Forzar la lectura del PDF como UTF-8 al extraer texto
                     pdf_reader = PyPDF2.PdfReader(file)
                     first_page = pdf_reader.pages[0]
                     text = first_page.extract_text()
+                    if text:
+                        # Intentar decodificar si es necesario
+                        if isinstance(text, bytes):
+                            text = text.decode('utf-8', errors='replace')
                     if not text:
                         error = "No se pudo extraer texto del PDF."
                     else:
